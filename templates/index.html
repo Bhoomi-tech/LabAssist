@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LabAssist - Home</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+  <style>
+    /* Ensure container content doesn't overlap fixed logo */
+    body .container {
+      padding-top: 80px;
+    }
+
+    /* Optional: Adjust logo size if needed */
+    .logo {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      height: 100px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body class="py-5">
+
+  <!-- Fixed Logo -->
+  <img src="{{ url_for('static', filename='astonLogo.png') }}" alt="LabAssist Logo" class="logo">
+
+  <!-- Fixed Theme Toggle Button -->
+  <button id="theme-toggle" class="btn btn-outline-secondary btn-sm"
+          style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+    🌙 Dark Mode
+  </button>
+
+  <!-- Page Content -->
+  <div class="container text-center">
+    <h1 class="mb-4">Welcome to LabAssist</h1>
+    <p class="lead">Select your role to continue:</p>
+
+    <div class="mt-4">
+      <a href="/student" class="btn btn-primary btn-lg mx-2">🎓 Student</a>
+      <a href="/dashboard" class="btn btn-success btn-lg mx-2">🧰 Technician</a>
+    </div>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    const toggleButton = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark-mode');
+      toggleButton.textContent = '🌞 Light Mode';
+    }
+
+    // Toggle theme
+    toggleButton.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        toggleButton.textContent = '🌞 Light Mode';
+      } else {
+        localStorage.setItem('theme', 'light');
+        toggleButton.textContent = '🌙 Dark Mode';
+      }
+    });
+  </script>
+
+</body>
+</html>

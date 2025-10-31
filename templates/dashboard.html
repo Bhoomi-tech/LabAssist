@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Technician Dashboard - LabAssist</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+  <style>
+    /* Padding to prevent overlap with fixed logo */
+    body .container {
+      padding-top: 80px;
+    }
+
+    /* Fixed logo */
+    .logo {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      height: 100px;
+      z-index: 1000;
+    }
+
+    /* Fixed theme toggle button */
+    #theme-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+    }
+
+    /* Disable Resolve for non-technicians */
+    .disabled-link {
+      pointer-events: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    /* Tooltip styling */
+    .disabled-link::after {
+      content: "Technician login required";
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .disabled-link:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+</head>
+<body class="py-5">
+
+  <!-- Fixed Logo -->
+  <img src="{{ url_for('static', filename='astonLogo.png') }}" alt="LabAssist Logo" class="logo">
+
+  <!-- Fixed Theme Toggle -->
+  <button id="theme-toggle" class="btn btn-outline-secondary btn-sm">🌙 Dark Mode</button>
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="mb-0">Technician Dashboard</h1>
+
+      {% if session.get('role') == 'technician' %}
+        <div>
+          <span class="text-success me-3">👨‍🔧 Logged in</span>
+          <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+      {% else %}
+        <div>
+          <a href="/tech_login" class="btn btn-outline-primary btn-sm">Technician Login</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover" id="requests-table">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Student</th>
+            <th>Bench Number</th>
+            <th>Time Since Request</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for req in requests %}
+          <tr data-timestamp="{{ req.timestamp }}">
+            <td>{{ req.id }}</td>
+            <td>{{ req.student_name }}</td>
+            <td>{{ req.benchnum }}</td>
+            <td class="elapsed"></td>
+            <td>
+              {% if session.get('role') == 'technician' %}
+                <a href="/resolve/{{ req.id }}" class="btn btn-success btn-sm">Resolve</a>
+              {% else %}
+                <a href="/tech_login" class="btn btn-secondary btn-sm disabled-link">🔒 Resolve</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="/" class="btn btn-secondary">Back to Home</a>
+    </div>
+  </div>
+
+  <!-- JS for live time + theme toggle -->
+  <script>
+    // Live "time since request"
+    function updateElapsed() {
+      const rows = document.querySelectorAll('#requests-table tbody tr');
+      const now = new Date();
+
+      rows.forEach(row => {
+        const timestamp = row.getAttribute('data-timestamp');
+        if (!timestamp) return;
+        const requestTime = new Date(timestamp.replace(' ', 'T'));
+        const delta = Math.floor((now - requestTime) / 1000);
+
+        let elapsedText = '';
+        if (delta >= 86400) {
+          const days = Math.floor(delta / 86400);
+          elapsedText = `${days} day${days > 1 ? 's' : ''} ago`;
+        } else if (delta >= 3600) {
+          const hours = Math.floor(delta / 3600);
+          elapsedText = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        } else if (delta >= 60) {
+          const minutes = Math.floor(delta / 60);
+          elapsedText = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        } else {
+          elapsedText = `${delta} second${delta !== 1 ? 's' : ''} ago`;
+        }
+
+        row.querySelector('.elapsed').textContent = elapsedText;
+      });
+    }
+
+    updateElapsed();
+    setInterval(updateElapsed, 10000);
+
+    // Theme toggle
+    const toggleButton = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark-mode');
+      toggleButton.textContent = '🌞 Light Mode';
+    }
+
+    toggleButton.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        toggleButton.textContent = '🌞 Light Mode';
+      } else {
+        localStorage.setItem('theme', 'light');
+        toggleButton.textContent = '🌙 Dark Mode';
+      }
+    });
+  </script>
+
+</body>
+</html>

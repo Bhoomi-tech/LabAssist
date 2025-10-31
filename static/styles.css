@@ -1,0 +1,55 @@
+/* Default light theme */
+:root {
+  --bg-color: #f8f9fa;
+  --form-bg: #ffffff;
+  --text-color: #212529;
+  --table-bg: white;
+  --table-border: #dee2e6;
+  --button-bg: #004aad;
+  --button-hover: #00357d;
+}
+
+/* Dark theme */
+.dark-mode {
+  --bg-color: #1e1e1e;
+  --form-bg: #0e0d0de8;
+  --text-color: #f9f3f3ec;
+  --table-bg: #2c2c2c;
+  --table-border: #3a3a3a;
+  --button-bg: #0d6efd;
+  --button-hover: #1a75ff;
+}
+
+/* Apply variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.table {
+  background-color: var(--table-bg);
+  border-color: #f9f3f3ec;
+}
+
+.btn-primary {
+  background-color: var(--button-bg);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--button-hover);
+}
+
+.logo {
+  position: fixed;    /* stays in place even when scrolling */
+  top: 10px;          /* distance from top */
+  left: 10px;         /* distance from left */
+  height: 50px;       /* adjust size */
+  z-index: 1000;      /* ensures it stays above other elements */
+}
+
+.disabled-link {
+  pointer-events: none;
+  opacity: 0.5;
+}

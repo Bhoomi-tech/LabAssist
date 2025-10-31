@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Enter Site PIN - LabAssist</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f8f9fa;
+    }
+    .pin-form {
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      padding: 30px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .pin-form input { margin-bottom: 15px; }
+    .pin-form button { width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="pin-form">
+    <h2 class="mb-4">Enter Site PIN</h2>
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      <input type="password" name="pin" class="form-control" placeholder="Enter PIN" required autofocus>
+      <button type="submit" class="btn btn-success mt-2">Enter</button>
+    </form>
+  </div>
+</body>
+</html>
