@@ -3,7 +3,7 @@ import sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'super_secret_key_123'  # Needed for sessions
+app.secret_key = 'BB2705'  # Needed for sessions
 DB_FILE = 'requests.db'
 
 # ---------- DATABASE INITIALIZATION ----------
@@ -19,6 +19,24 @@ def init_db():
                     )''')
         conn.commit()
 
+# ---------- SITE PIN CHECK ----------
+@app.before_request
+def require_site_pin():
+    allowed_routes = ['pin', 'static']
+    if request.endpoint not in allowed_routes and not session.get('site_access'):
+        return redirect(url_for('pin'))
+
+@app.route('/pin', methods=['GET', 'POST'])
+def pin():
+    if request.method == 'POST':
+        entered_pin = request.form['pin']
+        if entered_pin == '1234':  # Example site PIN
+            session['site_access'] = True
+            return redirect(url_for('home'))
+        else:
+            return render_template('pin.html', error="Incorrect PIN.")
+    return render_template('pin.html')
+
 # ---------- ROUTES ----------
 @app.route('/')
 def home():
@@ -28,7 +46,6 @@ def home():
 def student_page():
     return render_template('student.html')
 
-# Handle student help requests
 @app.route('/request_help', methods=['POST'])
 def request_help():
     name = request.form['student_name'].strip()
@@ -36,8 +53,6 @@ def request_help():
 
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
-
-        # Prevent duplicate pending requests
         c.execute("SELECT * FROM requests WHERE student_name=? AND status='Pending'", (name,))
         existing_request = c.fetchone()
 
@@ -58,7 +73,7 @@ def request_help():
 def tech_login():
     if request.method == 'POST':
         password = request.form['password']
-        if password == 'labtech123':  # Example password
+        if password == 'labtech123':  # Technician password
             session['role'] = 'technician'
             return redirect(url_for('dashboard'))
         else:
@@ -67,6 +82,7 @@ def tech_login():
 
 @app.route('/logout')
 def logout():
+    # Only logs out technician, site PIN session remains
     session.pop('role', None)
     return redirect(url_for('dashboard'))
 
@@ -88,7 +104,7 @@ def dashboard():
 # ---------- RESOLVE REQUEST ----------
 @app.route('/resolve/<int:request_id>')
 def resolve(request_id):
-    # Redirect unauthorized users to login
+    # Redirect unauthorized users to technician login
     if session.get('role') != 'technician':
         return redirect(url_for('tech_login'))
 
@@ -102,4 +118,4 @@ def resolve(request_id):
 # ---------- RUN APP ----------
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)

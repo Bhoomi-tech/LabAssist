@@ -29,7 +29,7 @@ body {
 
 .table {
   background-color: var(--table-bg);
-  border-color: #f9f3f3ec;
+  border-color: var(--table-border);
 }
 
 .btn-primary {
