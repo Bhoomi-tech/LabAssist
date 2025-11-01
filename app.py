@@ -30,7 +30,7 @@ def require_site_pin():
 def pin():
     if request.method == 'POST':
         entered_pin = request.form['pin']
-        if entered_pin == '1234':  # Example site PIN
+        if entered_pin == 'BB2705':  # Example site PIN
             session['site_access'] = True
             return redirect(url_for('home'))
         else:
